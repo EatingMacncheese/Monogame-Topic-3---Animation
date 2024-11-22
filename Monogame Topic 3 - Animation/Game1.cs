@@ -4,16 +4,26 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Monogame_Topic_3___Animation
 {
+    enum Screen
+    {
+        Intro,
+        TribbleYard,
+        EndScreen
+    }
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        Texture2D greyTexture, brownTexture, creamTexture, orangeTexture;
+        Texture2D greyTexture, brownTexture, creamTexture, orangeTexture, introTexture, endTexture;
         Rectangle greyRect, creamRect, orangeRect, brownRect;
         Vector2 greyTribbleSpeed, creamSpeed, orangeSpeed, brownSpeed;
-
+        float timer;
         Rectangle window;
+
+        Screen screen;
+
+        MouseState mouseState;
 
         public Game1()
         {
@@ -44,6 +54,8 @@ namespace Monogame_Topic_3___Animation
             _graphics.PreferredBackBufferHeight = window.Height;
             _graphics.ApplyChanges();
 
+            screen = Screen.Intro;
+
             base.Initialize();
         }
 
@@ -53,56 +65,74 @@ namespace Monogame_Topic_3___Animation
 
             // TODO: use this.Content to load your game content here
 
+            introTexture = Content.Load<Texture2D>("Untitled");
             greyTexture = Content.Load<Texture2D>("tribbleGrey");
-            
             brownTexture = Content.Load<Texture2D>("tribbleBrown");
             orangeTexture = Content.Load<Texture2D>("tribbleOrange");
             creamTexture = Content.Load<Texture2D>("tribbleCream");
+            endTexture = Content.Load<Texture2D>("end screen");
+            timer = 15f;
         }
 
         protected override void Update(GameTime gameTime)
         {
+
+            
+
+            mouseState = Mouse.GetState();
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            if (screen == Screen.Intro)
+            {
+                if (mouseState.LeftButton == ButtonState.Pressed) 
+                    screen = Screen.TribbleYard;
+            }
+            else if (screen == Screen.TribbleYard)
+            {
+                // TODO: Add your update logic here
 
-            //grey
-            greyRect.X += (int)greyTribbleSpeed.X;
-            if (greyRect.Right > window.Width || greyRect.Left < 0)
-                greyTribbleSpeed.X *= -1;
+                //grey
+                greyRect.X += (int)greyTribbleSpeed.X;
+                if (greyRect.Right > window.Width || greyRect.Left < 0)
+                    greyTribbleSpeed.X *= -1;
 
-            greyRect.Y += (int)greyTribbleSpeed.Y;
-            if (greyRect.Top < 0)
-                greyTribbleSpeed.Y = 2;
-            else if (greyRect.Bottom > window.Height)
-                greyTribbleSpeed.Y = -2;
+                greyRect.Y += (int)greyTribbleSpeed.Y;
+                if (greyRect.Top < 0)
+                    greyTribbleSpeed.Y = 2;
+                else if (greyRect.Bottom > window.Height)
+                    greyTribbleSpeed.Y = -2;
 
+                //cream
+                creamRect.X += (int)creamSpeed.X;
+                if (creamRect.Right > window.Width || creamRect.Left < 0)
+                    creamRect.X *= -1;
 
-            //cream
-            creamRect.X += (int)creamSpeed.X;
-            if (creamRect.Right > window.Width || creamRect.Left < 0)
-                creamRect.X *= -1;
+                creamRect.Y += (int)creamSpeed.Y;
+                if (creamRect.Top < 0)
+                    creamSpeed.Y = 3;
+                else if (creamRect.Bottom > window.Height)
+                    creamSpeed.Y = -3;
+                //brown
+                brownRect.X += (int)brownSpeed.X;
+                if (brownRect.Right > window.Width || brownRect.Left < 0)
+                    brownSpeed.X *= -1;
 
-            creamRect.Y += (int)creamSpeed.Y;
-            if (creamRect.Top < 0)
-                creamSpeed.Y = 3;
-            else if (creamRect.Bottom > window.Height)
-                creamSpeed.Y = -3;
-            //brown
-            brownRect.X += (int)brownSpeed.X;
-            if (brownRect.Right > window.Width || brownRect.Left < 0)
-                brownSpeed.X *= -1;
+                brownRect.Y += (int)brownSpeed.Y;
+                if (brownRect.Top < 0)
+                    brownSpeed.Y = 4;
+                else if (brownRect.Bottom > window.Height)
+                    brownSpeed.Y = -4;
+                //orange
+                orangeRect.X += (int)orangeSpeed.X;
+                if (orangeRect.Right > window.Width || orangeRect.Left < 0)
+                    orangeSpeed.X *= -1;
+                //clock
+                timer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            brownRect.Y += (int)brownSpeed.Y;
-            if (brownRect.Top < 0)
-                brownSpeed.Y = 4;
-            else if (brownRect.Bottom > window.Height)
-                brownSpeed.Y = -4;
-            //orange
-            orangeRect.X += (int)orangeSpeed.X;
-            if (orangeRect.Right > window.Width || orangeRect.Left < 0)
-                orangeSpeed.X *= -1;
+            }
+
+            
 
 
 
@@ -114,12 +144,31 @@ namespace Monogame_Topic_3___Animation
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-            _spriteBatch.Begin();
+            
 
+            _spriteBatch.Begin();
+            if (timer < 0f)
+            {
+                screen = Screen.EndScreen;
+                if (screen == Screen.EndScreen)
+                {
+                    _spriteBatch.Draw(endTexture, window, Color.White);
+                }
+            }
+            if (screen == Screen.Intro)
+            {
+                _spriteBatch.Draw(introTexture, window, Color.White);
+            }
+            else if (screen == Screen.TribbleYard)
+            {
             _spriteBatch.Draw(greyTexture, greyRect, Color.White);
             _spriteBatch.Draw(creamTexture, creamRect, Color.White);
             _spriteBatch.Draw(brownTexture, brownRect, Color.White);
             _spriteBatch.Draw(orangeTexture, orangeRect, Color.White);
+            }
+
+
+            
 
             _spriteBatch.End();
 
